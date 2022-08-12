@@ -166,3 +166,37 @@ function getCurrentPosition(event) {
 
 let currentLink = document.querySelector("#current-button");
 currentLink.addEventListener("click", getCurrentPosition);
+
+
+
+
+function displayForecast() {
+let forecastElement = document.querySelector("#forecast");
+
+let forecastHTML = `<div class="row">`;
+let days = ["Tuesday", "Wednesday", "Friday", "Saturday"];
+days.forEach(function(day) {
+forecastHTML = forecastHTML + `<div class="col-sm-3">
+            <div class="card" style="width: 120px;">
+              <div class="card-body">
+                <p class="card-text" style="text-align: center;">
+                  ${day}
+                </p>
+                <img
+                  src="img/02d.jpg"
+                  class="img-fluid rounded-start"
+                  alt="weather"
+                  style="width: 100%;"
+                />
+                <h5 class="card-title" style="text-align: center;">30°C</h5>
+              </div>
+            </div>
+          </div>
+          `;
+} 
+)
+
+forecastHTML = forecastHTML + `</div>`;
+forecastElement.innerHTML = forecastHTML;
+          }
+displayForecast();
