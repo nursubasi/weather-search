@@ -24,8 +24,23 @@ dayinfo.innerHTML = `${day} ${hours}:${minutes}`;
 let fahrenheitElement = document.getElementById(`fahrenheit`);
 let celciusElement = document.getElementById(`celcius`);
 
-function placeSearch(response) {
-  // event.preventDefault();
+function formatDate(timestamp){
+let date = new Date(timestamp * 1000);
+let day = date. getDay();
+let days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+];
+return days[day];
+}
+
+function placeSearch(event) {
+  event.preventDefault();
   let placeInput = document.querySelector("#input-entry");
   let place = document.querySelector("#weather-place");
   let weatherDescription = document.querySelector(".image-description");
@@ -47,9 +62,6 @@ function placeSearch(response) {
       console.log(currentTemp);
       let temperatureElement = document.querySelector("#default-degree");
       temperatureElement.innerHTML = `${currentTemp}`;
-      celciusElement.style.removeProperty("color");
-      celciusElement.style.color = "black";
-      fahrenheitElement.style.color = "#43c2e3";
     }
     axios.get(apiUrl).then(enterTemperature);
 
@@ -72,43 +84,24 @@ function placeSearch(response) {
       console.log(imageNumber);
       imageElement.setAttribute("src", `img/${imageNumber}.jpg`);
     }
+    
     axios.get(apiUrl).then(getImage);
+
+    function getCoordinates (response){
+    let coordinates = response.data.coord;
+    getForecast(coordinates)};
+
+    axios.get(apiUrl).then(getCoordinates);
+
   } else {
     weatherDescription.innerHTML = `Sunny`;
     imageElement.setAttribute("src", `img/01d.jpg`);
   }
 }
 
-let form = document.querySelector("form");
+let form = document.querySelector("#search-form");
 form.addEventListener("submit", placeSearch);
 form.addEventListener("click", placeSearch);
-
-function getFahrenheit(response) {
-  let placeInput = document.querySelector("#input-entry");
-  let temperatureElement = document.querySelector("#default-degree");
-  if (placeInput.value) {
-    let cityInput = placeInput.value;
-    let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
-    let otherUnit = "imperial";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=${otherUnit}&appid=${apiKey}`;
-    function placeName(response) {
-      let currentFahrenheit = Math.round(response.data.main.temp);
-      temperatureElement.innerHTML = `${currentFahrenheit}`;
-      fahrenheitElement.style.removeProperty("color");
-      fahrenheitElement.style.color = "black";
-      celciusElement.style.color = "#43c2e3";
-    }
-    axios.get(apiUrl).then(placeName);
-  } else {
-    temperatureElement.innerHTML = `35`;
-  }
-}
-
-let fahrenheitLink = document.querySelector("#fahrenheit");
-fahrenheitLink.addEventListener("click", getFahrenheit);
-
-let celciusLink = document.querySelector("#celcius");
-celciusLink.addEventListener("click", placeSearch);
 
 function showPosition(position) {
   let latitude = position.coords.latitude;
@@ -131,9 +124,6 @@ function showPosition(position) {
     console.log(currentTemp);
     let temperatureElement = document.querySelector("#default-degree");
     temperatureElement.innerHTML = `${currentTemp}`;
-    celciusElement.style.removeProperty("color");
-    celciusElement.style.color = "black";
-    fahrenheitElement.style.color = "#43c2e3";
   }
   axios.get(apiUrl).then(enterTemperature);
 
@@ -167,34 +157,44 @@ function getCurrentPosition(event) {
 let currentLink = document.querySelector("#current-button");
 currentLink.addEventListener("click", getCurrentPosition);
 
+function getForecast(coordinates) {
+  console.log(coordinates);
+  let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
+  let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${apiKey}&units=metric`;
+  axios.get(apiUrl).then(displayForecast);
+  console.log(apiUrl);
+}
 
 
-
-function displayForecast() {
+function displayForecast(response) {
+let forecast = response.data.daily;
+console.log(forecast);
 let forecastElement = document.querySelector("#forecast");
 
 let forecastHTML = `<div class="row">`;
-let days = ["Tuesday", "Wednesday", "Friday", "Saturday"];
-days.forEach(function(day) {
+forecast.forEach(function(forecastDay, index) {
+  if (index >0 && index < 5){
 forecastHTML = forecastHTML + `<div class="col-sm-3">
             <div class="card" style="width: 120px;">
               <div class="card-body">
                 <p class="card-text" style="text-align: center;">
-                  ${day}
+                  ${formatDate(forecastDay.dt)}
                 </p>
                 <img
-                  src="img/02d.jpg"
+                  src="img/${(forecastDay.weather[0].icon)}.jpg"
                   class="img-fluid rounded-start"
                   alt="weather"
                   style="width: 100%;"
                 />
-                <h5 class="card-title" style="text-align: center;">30°C</h5>
+                <h5 class="card-title" style="text-align: center;">${Math.round(forecastDay.temp.max)}°C</h5>
               </div>
             </div>
           </div>
           `;
+}
 } 
 )
+;
 
 forecastHTML = forecastHTML + `</div>`;
 forecastElement.innerHTML = forecastHTML;
