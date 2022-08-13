@@ -154,8 +154,6 @@ function getCurrentPosition(event) {
   navigator.geolocation.getCurrentPosition(showPosition);
 }
 
-let currentLink = document.querySelector("#current-button");
-currentLink.addEventListener("click", getCurrentPosition);
 
 function getForecast(coordinates) {
   console.log(coordinates);
@@ -199,4 +197,4 @@ forecastHTML = forecastHTML + `<div class="col-sm-3">
 forecastHTML = forecastHTML + `</div>`;
 forecastElement.innerHTML = forecastHTML;
           }
-displayForecast();
+
