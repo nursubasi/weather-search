@@ -21,8 +21,54 @@ let day = days[now.getDay()];
 let dayinfo = document.querySelector("#weekday");
 dayinfo.innerHTML = `${day} ${hours}:${minutes}`;
 
-let fahrenheitElement = document.getElementById(`fahrenheit`);
-let celciusElement = document.getElementById(`celcius`);
+function placeSearch(event) {
+  event.preventDefault();
+  let placeInput = document.querySelector("#input-entry");
+
+  if (placeInput.value) {
+    let cityInput = placeInput.value;
+    let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
+    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=${units}&appid=${apiKey}`;
+    axios.get(apiUrl).then(showWeather);
+  }
+}
+
+function showWeather(response) {
+  let place = document.querySelector("#weather-place");
+  let weatherDescription = document.querySelector(".image-description");
+  let windSpeed = document.querySelector("#wind-speed");
+  let imageElement = document.querySelector("#first-image");
+
+  let cityName = response.data.name;
+  place.innerHTML = `${cityName}`;
+
+  let currentTemp = Math.round(response.data.main.temp);
+  let temperatureElement = document.querySelector("#default-degree");
+  temperatureElement.innerHTML = `${currentTemp}`;
+
+  let currentDescription = response.data.weather[0].main;
+  weatherDescription.innerHTML = `${currentDescription}`;
+
+  let currentWindSpeed = Math.round(response.data.wind.speed);
+  windSpeed.innerHTML = `${currentWindSpeed}`;
+
+  let imageNumber = response.data.weather[0].icon;
+  imageElement.setAttribute("src", `img/${imageNumber}.jpg`);
+  imageElement.setAttribute("alt", currentDescription);
+
+  coords = response.data.coord;
+
+  getForecast(coords);
+
+};
+
+let form = document.querySelector("#search-form");
+form.addEventListener("submit", placeSearch);
+form.addEventListener("click", placeSearch);
+
+
+
+
 
 function formatDate(timestamp){
 let date = new Date(timestamp * 1000);
@@ -39,114 +85,15 @@ let days = [
 return days[day];
 }
 
-function placeSearch(event) {
-  event.preventDefault();
-  let placeInput = document.querySelector("#input-entry");
-  let place = document.querySelector("#weather-place");
-  let weatherDescription = document.querySelector(".image-description");
-  let windSpeed = document.querySelector("#wind-speed");
-  let imageElement = document.querySelector("#first-image");
-  if (placeInput.value) {
-    let cityInput = placeInput.value;
-    let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
-    let units = "metric";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=${units}&appid=${apiKey}`;
-    function placeName(response) {
-      let cityName = response.data.name;
-      place.innerHTML = `${cityName}`;
-    }
-    axios.get(apiUrl).then(placeName);
-    function enterTemperature(response) {
-      console.log(apiUrl);
-      let currentTemp = Math.round(response.data.main.temp);
-      console.log(currentTemp);
-      let temperatureElement = document.querySelector("#default-degree");
-      temperatureElement.innerHTML = `${currentTemp}`;
-    }
-    axios.get(apiUrl).then(enterTemperature);
-
-    function getWeatherDescription(response) {
-      let currentDescription = response.data.weather[0].main;
-      console.log(currentDescription);
-      weatherDescription.innerHTML = `${currentDescription}`;
-    }
-    axios.get(apiUrl).then(getWeatherDescription);
-
-    function getWindSpeed(response) {
-      let currentWindSpeed = Math.round(response.data.wind.speed);
-      console.log(currentWindSpeed);
-      windSpeed.innerHTML = `${currentWindSpeed}`;
-    }
-    axios.get(apiUrl).then(getWindSpeed);
-
-    function getImage(response) {
-      let imageNumber = response.data.weather[0].icon;
-      console.log(imageNumber);
-      imageElement.setAttribute("src", `img/${imageNumber}.jpg`);
-    }
-    
-    axios.get(apiUrl).then(getImage);
-
-    function getCoordinates (response){
-    let coordinates = response.data.coord;
-    getForecast(coordinates)};
-
-    axios.get(apiUrl).then(getCoordinates);
-
-  } else {
-    weatherDescription.innerHTML = `Sunny`;
-    imageElement.setAttribute("src", `img/01d.jpg`);
-  }
-}
-
-let form = document.querySelector("#search-form");
-form.addEventListener("submit", placeSearch);
-form.addEventListener("click", placeSearch);
-
 function showPosition(position) {
   let latitude = position.coords.latitude;
   let longitude = position.coords.longitude;
-  let place = document.querySelector("#weather-place");
-  let weatherDescription = document.querySelector(".image-description");
-  let windSpeed = document.querySelector("#wind-speed");
-  let imageElement = document.querySelector("#first-image");
+
   let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
   let units = "metric";
   let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=${units}`;
-  function placeName(response) {
-    let cityName = response.data.name;
-    place.innerHTML = `${cityName}`;
-  }
-  axios.get(apiUrl).then(placeName);
-  function enterTemperature(response) {
-    console.log(apiUrl);
-    let currentTemp = Math.round(response.data.main.temp);
-    console.log(currentTemp);
-    let temperatureElement = document.querySelector("#default-degree");
-    temperatureElement.innerHTML = `${currentTemp}`;
-  }
-  axios.get(apiUrl).then(enterTemperature);
-
-  function getWeatherDescription(response) {
-    let currentDescription = response.data.weather[0].main;
-    console.log(currentDescription);
-    weatherDescription.innerHTML = `${currentDescription}`;
-  }
-  axios.get(apiUrl).then(getWeatherDescription);
-
-  function getWindSpeed(response) {
-    let currentWindSpeed = Math.round(response.data.wind.speed);
-    console.log(currentWindSpeed);
-    windSpeed.innerHTML = `${currentWindSpeed}`;
-  }
-  axios.get(apiUrl).then(getWindSpeed);
-
-  function getImage(response) {
-    let imageNumber = response.data.weather[0].icon;
-    console.log(imageNumber);
-    imageElement.setAttribute("src", `img/${imageNumber}.jpg`);
-  }
-  axios.get(apiUrl).then(getImage);
+ 
+  axios.get(apiUrl).then(showWeather);
 }
 
 function getCurrentPosition(event) {
@@ -198,3 +145,5 @@ forecastHTML = forecastHTML + `</div>`;
 forecastElement.innerHTML = forecastHTML;
           }
 
+let units = "metric";
+let coords = null;
