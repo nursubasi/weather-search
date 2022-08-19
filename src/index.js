@@ -21,18 +21,6 @@ let day = days[now.getDay()];
 let dayinfo = document.querySelector("#weekday");
 dayinfo.innerHTML = `${day} ${hours}:${minutes}`;
 
-function placeSearch(event) {
-  event.preventDefault();
-  let placeInput = document.querySelector("#input-entry");
-
-  if (placeInput.value) {
-    let cityInput = placeInput.value;
-    let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=${units}&appid=${apiKey}`;
-    axios.get(apiUrl).then(showWeather);
-  }
-}
-
 function showWeather(response) {
   let place = document.querySelector("#weather-place");
   let weatherDescription = document.querySelector(".image-description");
@@ -62,9 +50,24 @@ function showWeather(response) {
 
 };
 
+function placeSearch(cityInput) {
+    let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
+    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=${units}&appid=${apiKey}`;
+    axios.get(apiUrl).then(showWeather);
+  };
+
+function handleSubmit(event) {
+  event.preventDefault();
+  let placeInput = document.querySelector("#input-entry");
+  placeSearch(placeInput.value);
+};
+
+
+
+
 let form = document.querySelector("#search-form");
-form.addEventListener("submit", placeSearch);
-form.addEventListener("click", placeSearch);
+form.addEventListener("submit", handleSubmit);
+form.addEventListener("click", handleSubmit);
 
 
 
@@ -103,17 +106,14 @@ function getCurrentPosition(event) {
 
 
 function getForecast(coordinates) {
-  console.log(coordinates);
   let apiKey = "2089812b000f63951a22fa9a7c7bfb0d";
   let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${apiKey}&units=metric`;
   axios.get(apiUrl).then(displayForecast);
-  console.log(apiUrl);
 }
 
 
 function displayForecast(response) {
 let forecast = response.data.daily;
-console.log(forecast);
 let forecastElement = document.querySelector("#forecast");
 
 let forecastHTML = `<div class="row">`;
@@ -147,3 +147,5 @@ forecastElement.innerHTML = forecastHTML;
 
 let units = "metric";
 let coords = null;
+placeSearch("Paris");
+displayForecast();
